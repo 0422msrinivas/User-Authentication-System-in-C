@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include<ctype.h>
+#include <ctype.h>
 #include <conio.h>
 #include <string.h>
 #include <time.h>
@@ -20,9 +20,7 @@ struct account
     char username[30];
     char phone[15];
     char gender;
-  //  char DOB[10];
     char pass1[20];
-    char pass2[20];
 };
 
 void divider()
@@ -33,39 +31,34 @@ void divider()
     }
 }
 
-
 int main()
 {
-    while (1)
+    int isRunning = 1; // Variable to control the loop
+
+    while (isRunning)
     {
         system("cls");
         switch (menu())
         {
         case 1:
             signup();
-
             break;
-
         case 2:
             login();
-
             break;
-
         case 3:
             forgot();
             break;
-
         case 4:
             change_password();
             break;
-
         case 5:
             delete_account();
             break;
-
         case 6:
-            exit(0);
-
+            isRunning = 0; // Set isRunning to false to exit the loop
+            printf("Exiting the program...\n");
+            break;
         default:
             printf("Invalid Choice!\n");
         }
@@ -73,8 +66,6 @@ int main()
 
     return 0;
 }
-
-
 
 int menu()
 {
@@ -92,7 +83,6 @@ int menu()
     scanf("%d", &c);
     return c;
 }
-
 
 void takepassword(char pass[20])
 {
@@ -126,85 +116,78 @@ void takepassword(char pass[20])
     }
 }
 
-
-
 void signup()
-{ int s1;
+{
+    system("cls");
     struct account u;
-    Label:system("cls");
     char pass2[20];
+
     printf("CREATING NEW ACCOUNT \n");
     divider();
-    printf("\nENTER your first name : ");
+    printf("\nEnter your first name : ");
     scanf("%s", u.first_name);
-    for(int i=0;u.first_name[i]!='\0';i++){
-    if(!isalpha(u.first_name[i])){
-        printf("Invalid enter data ");
-        goto Label;
-        return;
+    for (int i = 0; u.first_name[i] != '\0'; i++)
+    {
+        if (!isalpha(u.first_name[i]))
+        {
+            printf("Invalid enter data ");
+            return;
+        }
     }
- }
     printf("Enter last name : ");
     scanf("%s", u.last_name);
-    for(int i=0;u.last_name[i]!='\0';i++){
-    if(!isalpha(u.last_name[i])){
-        printf("Invalid enter data ");
-        goto Label;
-        return;
+    for (int i = 0; u.last_name[i] != '\0'; i++)
+    {
+        if (!isalpha(u.last_name[i]))
+        {
+            printf("Invalid enter data ");
+            return;
+        }
     }
- }
     printf("Enter your username : ");
     scanf("%s", u.username);
     printf("Enter your phone number : ");
     scanf("%s", u.phone);
-    int d=strlen(u.phone);
-    // if(!(d>=10 && d<=12))
-    // goto Label;
-    for(int i=0;u.phone[i]!='\0';i++){
-    if(!(u.phone[i]>='0' && u.phone[i]<='9')){
-        printf("Invalid enter data ");
-        goto Label;
-        return;
+    int d = strlen(u.phone);
+    for (int i = 0; u.phone[i] != '\0'; i++)
+    {
+        if (!(u.phone[i] >= '0' && u.phone[i] <= '9'))
+        {
+            printf("Invalid enter data ");
+            return;
+        }
     }
- }
     fflush(stdin);
     printf("Enter Gender (M/F): ");
     scanf("%c", &u.gender);
-    if(!(u.gender=='M' || u.gender=='m' || u.gender=='F' || u.gender=='f')){
-        goto Label;
+    if (!(u.gender == 'M' || u.gender == 'm' || u.gender == 'F' || u.gender == 'f'))
+    {
+        printf("Invalid gender input ");
+        return;
     }
-   // printf("Enter your DOB (dd/mm/yyyy): ");
-    //scanf("%s", u.DOB);
-   // int dd=(u.DOB[0]-'0')*10+(u.DOB[1]-'0');
-    //if(!(dd>=1 && dd<=30)){
-      //  goto Label;
-    //}
-    //int mm=(u.DOB[3]-'0')*10+(u.DOB[4]-'0');
-    //if(!(mm>=1 && mm<=12))
-   // goto Label;
-    //int yy=(u.DOB[6]-'0')*1000+(u.DOB[7]-'0')*100+(u.DOB[8]-'0')*10+(u.DOB[9]-'0');
-    //if(!(yy>2023 && yy<1923))
-    //goto Label;
     printf("Enter password : ");
     takepassword(u.pass1);
 
-conf_pass:
     printf("\nConfirm password : ");
-    takepassword(u.pass2);
+    takepassword(pass2);
 
-    if (strcmp(u.pass1, u.pass2))
+    if (strcmp(u.pass1, pass2))
     {
-        printf("INCORRECT PASSWORD \n\n");
-        goto conf_pass;
+        printf("Passwords do not match\n\n");
+        return;
     }
     else
     {
+        FILE *fp = fopen("account.txt", "a"); // Open file in append mode
+        if (fp == NULL)
+        {
+            printf("Error opening file.\n");
+            return;
+        }
+        fwrite(&u, sizeof(struct account), 1, fp); // Write account information to file
+        fclose(fp);                                // Close file
         printf("\n\nACCOUNT CREATED SUCCESSFULLY\n\n");
         getch();
-
-        FILE *fp = fopen("account.txt", "w");
-        fwrite(&u, sizeof(struct account), 1, fp);
-        fclose(fp);
     }
 }
 
@@ -212,60 +195,44 @@ void login()
 {
     system("cls");
     char user[30], log_pass[20];
-
     struct account u;
     FILE *fp = fopen("account.txt", "r");
-    fread(&u, sizeof(struct account), 1, fp);
 
-name:
-    printf("enter Username : ");
+    printf("Enter Username : ");
     scanf("%s", user);
-    if (strcmp(u.username, user))
-    {
-        printf("\nPLEASE ENTER CORRECT USERNAME\n ");
-        goto name;
-    }
+    printf("Enter Password : ");
+    takepassword(log_pass);
 
-    else
+    while (fread(&u, sizeof(struct account), 1, fp))
     {
-    logpass:
-        printf("Enter password : ");
-        takepassword(log_pass);
-        if (strcmp(u.pass1, log_pass))
+        if (strcmp(user, u.username) == 0 && strcmp(log_pass, u.pass1) == 0)
         {
-            printf("\nINCORRET PASSWORD \n");
-            goto logpass;
-        }
-        else
-        {
-            system("cls");
             printf("\n****WELCOME %s****\n", u.first_name);
             divider();
-
             printf("\nYour Details \n");
             divider();
             printf("\nUsername : %s\n", u.username);
-            printf("first name : %s\n", u.first_name);
+            printf("First name : %s\n", u.first_name);
             printf("Last name : %s\n", u.last_name);
-            printf("phone number : %s\n", u.phone);
+            printf("Phone number : %s\n", u.phone);
             printf("Gender : %c\n", u.gender);
-            printf("Password : %s\n", u.pass1);
+            fclose(fp);
+            getch();
+            return;
         }
-        getch();
     }
     fclose(fp);
+    printf("\nLOGIN FAILED! Please check your username and password.\n");
+    getch();
 }
-
-
 
 void forgot()
 {
     system("cls");
     struct account u;
     int choice;
-    char username[20], password[20], phone[20];
-    FILE *fp = fopen("Account.txt", "r");
-    fread(&u, sizeof(struct account), 1, fp);
+    char username[30], password[20], phone[20];
+    FILE *fp = fopen("account.txt", "r");
 
     printf("\n1.Search by Username\n");
     printf("2.Search by password\n");
@@ -279,69 +246,18 @@ void forgot()
     case 1:
         printf("Enter your Username : ");
         scanf("%s", username);
-        if (strcmp(username, u.username))
-        {
-            printf("USERNAME NOT FOUND !!");
-            getch();
-        }
-        else
-        {
-            printf("ACCOUNT FOUND!\n");
-            divider();
-            printf("\nUsername : %s \n", u.username);
-            printf("First name : %s \n", u.first_name);
-            printf("Last name : %s \n", u.last_name);
-            printf("Phone no. : %s \n", u.phone);
-            printf("Password : %s \n", u.pass1);
-            getch();
-        }
-
         break;
 
     case 2:
-        printf("Enter your Passowrd : ");
+        printf("Enter your Password : ");
         scanf("%s", password);
-        if (strcmp(password, u.pass1))
-        {
-            printf("ACCOUNT NOT FOUND !!");
-            getch();
-        }
-        else
-        {
-            printf("ACCOUNT FOUND!\n");
-            divider();
-            printf("\nUsername : %s \n", u.username);
-            printf("First name : %s \n", u.first_name);
-            printf("Last name : %s \n", u.last_name);
-            printf("Phone no. : %s \n", u.phone);
-            printf("Password : %s \n", u.pass1);
-            getch();
-        }
-
         break;
 
     case 3:
         printf("Enter your Phone no. : ");
         scanf("%s", phone);
-        if (strcmp(phone, u.phone))
-        {
-            printf("\nACCOUNT NOT FOUND !!");
-            getch();
-        }
-        else
-        {
-            printf("ACCOUNT FOUND!\n");
-            divider();
-
-            printf("\nUsername : %s \n", u.username);
-            printf("First name : %s \n", u.first_name);
-            printf("Last name : %s \n", u.last_name);
-            printf("Phone no. : %s \n", u.phone);
-            printf("Password : %s \n", u.pass1);
-            getch();
-        }
-
         break;
+
     case 4:
         return;
 
@@ -350,75 +266,110 @@ void forgot()
         break;
     }
 
+    printf("\nAccount Details\n");
+    divider();
+
+    while (fread(&u, sizeof(struct account), 1, fp))
+    {
+        if ((choice == 1 && strcmp(username, u.username) == 0) ||
+            (choice == 2 && strcmp(password, u.pass1) == 0) ||
+            (choice == 3 && strcmp(phone, u.phone) == 0))
+        {
+            printf("\nUsername : %s\n", u.username);
+            printf("First name : %s\n", u.first_name);
+            printf("Last name : %s\n", u.last_name);
+            printf("Phone no. : %s\n", u.phone);
+            printf("Gender : %c\n", u.gender);
+            fclose(fp);
+            return;
+        }
+    }
     fclose(fp);
+    printf("\nNo matching account found!\n");
+    getch();
 }
 
 void change_password()
 {
     system("cls");
+    char user[30], log_pass[20], pass2[20];
+    struct account u;
+    FILE *fp = fopen("account.txt", "r+");
 
-    int num1, num2;
-    srand(time(0));
+    printf("Enter Username : ");
+    scanf("%s", user);
+    printf("Enter Current Password : ");
+    takepassword(log_pass);
 
-number:
-    num1 = rand();
-    printf("\nThe random number is %d\n", num1);
-
-    printf("Enter the above number : ");
-    scanf("%d", &num2);
-    if (num1 == num2)
+    int found = 0;
+    while (fread(&u, sizeof(struct account), 1, fp))
     {
-        struct account u;
-        char pass2[20];
-
-        FILE *fp = fopen("Account.txt", "r");
-        fread(&u, sizeof(u), 1, fp);
-
-        printf("Enter new password : ");
-        takepassword(u.pass1);
-    pas:
-        printf("\nConfirm new password :");
-        scanf("%s", pass2);
-        if (strcmp(u.pass1, pass2))
+        if (strcmp(user, u.username) == 0 && strcmp(log_pass, u.pass1) == 0)
         {
-            printf("*INCORRECT PASSWORD**\nPlease try again.....\n");
-            goto pas;
+            printf("\nEnter new password : ");
+            takepassword(u.pass1);
+
+            printf("\nConfirm new password : ");
+            takepassword(pass2);
+
+            if (strcmp(u.pass1, pass2) != 0)
+            {
+                printf("Passwords do not match.\n");
+            }
+            else
+            {
+                fseek(fp, -sizeof(struct account), SEEK_CUR);
+                fwrite(&u, sizeof(struct account), 1, fp);
+                printf("\nPassword changed successfully!\n");
+            }
+            found = 1;
+            break;
         }
-        else
-        {
-            fp = fopen("Account.txt", "w");
-            fwrite(&u, sizeof(u), 1, fp);
-            printf("***PASSWORD CHANGE SUCCESSFULLY***");
-            getch();
-        }
-        fclose(fp);
     }
-
-    else
+    if (!found)
     {
-        printf("Please input the correct number\n");
-        goto number;
+        printf("\nUser not found or invalid password!\n");
     }
+    fclose(fp);
+    getch();
 }
 
 void delete_account()
 {
-
+    system("cls");
+    char user[30], log_pass[20];
+    struct account u;
     FILE *fp = fopen("account.txt", "r");
 
-    printf("ARE YOU SURE[Y/N] : ");
-    char ch = getche();
-    if (ch == 'Y' || ch == 'y')
-    {
-        fp = fopen("account.txt", "w");
-        fprintf(fp, " ");
-        printf("\nACCOUNT DELETED SUCCESSFULLY\n");
-        getch();
-    }
+    printf("Enter Username : ");
+    scanf("%s", user);
+    printf("Enter Password : ");
+    takepassword(log_pass);
 
-    else if (ch == 'N' || ch == 'n')
+    FILE *temp = fopen("temp.txt", "w");
+    int found = 0;
+    while (fread(&u, sizeof(struct account), 1, fp))
     {
-        printf("\nACCOUNT DELETION STOPPED\n");
-        getch();
+        if (strcmp(user, u.username) == 0 && strcmp(log_pass, u.pass1) == 0)
+        {
+            found = 1;
+            continue;
+        }
+        fwrite(&u, sizeof(struct account), 1, temp);
     }
+    fclose(fp);
+    fclose(temp);
+
+    remove("account.txt");
+    rename("temp.txt", "account.txt");
+
+    if (found)
+    {
+        printf("\nAccount deleted successfully!\n");
+    }
+    else
+    {
+        printf("\nUser not found or invalid password!\n");
+    }
+    getch();
 }
