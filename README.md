@@ -1,5 +1,5 @@
 #  User Authentication System in C
-Certainly! Below is some information you can include in the GitHub README file for the provided C code:
+
 
 ---
 
